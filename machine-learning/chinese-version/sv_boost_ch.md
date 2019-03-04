@@ -13,8 +13,18 @@ author_profile: true
 permalink: /MachineLearning/sv_boost_ch/
 ---
 
+请注意: 本文是我翻译的一份学习资料，英文原版请点击Wei的学习笔记:[Decision Trees](https://wei2624.github.io/MachineLearning/sv_boost/) 我将不断和原作者的英文笔记同步内容，定期更新和维护。
 
-# 简介
+
+Please note this post is a study note translated to Chinese by me. Click [here](https://wei2624.github.io/MachineLearning/sv_boost/) to see the original English version in Wei's homepage.
+
+请注意: 本文是我翻译的一份学习资料，英文原版请点击Wei的学习笔记[Wei的学习笔记](https://wei2624.github.io/MachineLearning/sv_boost/)。
+
+---
+
+# 模型融合/集成学习
+
+## 简介
 
 在决策树章节中，我们讨论了如何在回归和分类任务中应用决策树，以及如何构建决策树。正如决策树章节中所述，决策树模型能力有限，过拟合问题难以解决，我们很难训练一个在一般情况下表现良好的决策树。因此，该章节中提出了使用决策树的集成算法。简而言之，多个训练模型的表现比单个模型的表现会更好。
 
@@ -53,9 +63,9 @@ Var(\frac{1}{n}\sum\limits_i X_i) &= \frac{1}{n^2} Var(\sum\limits_i X_i) \\
 
 问题是，我们如何实现这些目标呢？在此章节中，我们将介绍**Bagging**和**Boosting**。
 
-# Bagging
+## Bagging
 
-## Bootstrap
+### Bootstrap
 
 简单来讲，Bootstrap是一种重新采样技术，它可以用于改进数据的estimator。在该算法中，我们从数据的经验分布中不断采样，最后得到数据的统计值。
 
@@ -73,7 +83,7 @@ $$\mu_B = \frac{1}{B}\sum\limits_{n=1}^B E_b,   \sigma_B^2 = \frac{1}{B}\sum\lim
 
 这可以让我们了解estimator在估算数据中值时的表现如何。
 
-## Bagging
+### Bagging
 
 Bagging使用bootstrap的概念进行回归或分类，它代表着**Bootstrap聚合**。
 
@@ -107,7 +117,7 @@ $$Var(\bar{X}) = p\sigma^2 + \frac{1-p}{n}\sigma^2$$
 
 **2,** Bagging在非线性数据中表现更好。
 
-### Out-of-bag estimation
+#### Out-of-bag estimation
 
 在每个bootstrap中，我们只选择原始数据集的一部分。让我们假设我们均匀分布中对其进行**有放回**采样。随着数据集大小为$n\rightarrow \infty$，对于某一个样本，它未被选择的概率为：
 
@@ -119,7 +129,7 @@ $$\begin{align}
 
 这大约是三分之一，这意味着一个bootstrap中约有三分之一的原始数据未被选中进行训练。为了测试我们的bagging训练模型，对于第i个样本，我们可以用未经过该样本训练过的那些模型（大约M / 3模型）在此样本上进行预测。通过在整个数据集中执行此操作，我们可以获得out-of-bag（词如其名，bagging外的误差）误差估计。在$M\rightarrow\infty$的极端情况下，未对第i个样本进行训练的模型，对所有其他样本进行了训练，这个效果与交叉验证的留一法相同。
 
-## 随机森林
+### 随机森林
 
 不过Bagging也是存在缺点的。从bootstrap训练的决策树是彼此相关的，因为bootstrap之间是相关的。这是我们不想见到的，我们只希望减少相关性。这样的bagging将无法获得最佳性能。因此，有人就提出了随机森林，这种方法，修改虽小但却很有效。bagging是在所有维度上生长决策树，随机森林则是在随机选择的维度子集中生长决策树，详细为：
 
@@ -129,7 +139,7 @@ $$\begin{align}
 
 **2,** 对于每次训练，我们从d维度中随机选择m维($m \approx \sqrt(d)$)。对于每个bootstrap，我们有不同的维度m。
 
-# Boosting
+## Boosting
 
 我们现在知道了bagging是为了减少使用决策树时的方差，而Boosting则是为了减少偏差。在bagging中，我们生成bootstrap样本训练每个模型。在boosting中，我们在每次训练迭代后对bootstrap中的每个样本进行重新加权。如图所示：
 
@@ -153,7 +163,7 @@ $$\begin{align}
 
 在每次迭代中，错误分类的样本的权重不断增加。最终预测由加权误差决定。计算求和的结构准许我们增加建模能力，但由于每个训练模型都是相关的，也会导致高方差的出现。因此，增加M也会增加方差。
 
-## Boosting分析
+### Boosting分析
 
 值得一谈的是Boosting训练的准确性。这部分是纯粹理论，如果你愿意可以跳过它。
 
@@ -229,7 +239,7 @@ $$Z_m = (1 - 4(\frac{1}{2} - \epsilon_m)^2)^{\frac{1}{2}} \leq (\exp(-4(\frac{1}
 
 $$\prod_{m=1}^M Z_m \leq \exp(-2\sum_{m=1}^M (\frac{1}{2}-\epsilon_m)^2)$$
 
-## 前项逐步叠加模型
+### 前项逐步叠加模型
 
 在讨论新的boosting算法之前，我们值得研究一下一般的集成框架。它被称为**前项逐步叠加模型**。详细来讲：
 
@@ -257,7 +267,7 @@ $$L=\sum\limits_{i=1}^N (y_i-(f_{m-1}(x_i) + G(x_i)))^2 = ((y_i-f_{m-1}(x_i)) - 
 
 这意味着在这个推导中的平方损失的效果等于在对每一个残差 $(y_i-f_{m-1}(x_i))$拟合一个分类器。这只是对逐步叠加学习的一个简短介绍，如果你想了解更多相关知识，你应该去查阅一下课本等相关书籍。
 
-## 梯度提升
+### 梯度提升
 
 Boosting的应用领域很广泛，它也是逐步叠加建模的一种。其核心思想是，在每次迭代后，我们都会得到一个弱分类器。也就是说，我们只需要每个分类器的分类效果稍强于随机猜测即可。在最后，我们可以汇集所有弱分类器，形成一个能力较强的分类器。在Adaboost中，对于每次迭代，我们希望新模型专注于重新加权过的数据样本。对于梯度提升，最重要的是我们希望新模型专注于有偏差预测的梯度。
 
